@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.sql.SQLException;
 
-@RestControllerAdvice("com.example.Pastach.controller.")
+@RestControllerAdvice("com.example.Pastach.controller")
 @ResponseBody
 public class ErrorHandler {
     public static class ErrorResponse {
@@ -58,6 +58,13 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR) // 500
     public ErrorResponse handleThrowable(final Throwable e) {
+        e.printStackTrace();
         return new ErrorResponse("Something went wrong...");
+    }
+
+    @ExceptionHandler(SQLException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleSQLException(final SQLException e) {
+        return new ErrorResponse("Database error: " + e.getMessage());
     }
 }

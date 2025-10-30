@@ -22,7 +22,7 @@ public class UserService {
     }
 
     public User findUserById(String userId) {
-        log.info("(UserService): findUserById " + userId );
+        log.info("(UserService): findUserById " + userId);
         return userDao.findUserById(userId).orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
     }
 
@@ -30,37 +30,36 @@ public class UserService {
         return userDao.findAll();
     }
 
-    /*
-
     public User updateById(User user, String userId) {
-        UserValidation.validateUserExists(inMemoryUserStorage.findAll(), userId);
-        User existingUser = inMemoryUserStorage.findAll().get(userId);
-        boolean emailChanged = !user.getEmail().equals(existingUser.getEmail());
-        boolean idChanged = !user.getId().equals(existingUser.getId());
+        UserValidation.validateUserExists(userDao.findAll(), userId);
+        log.info("updateById: user exists");
+        Optional<User> existingUser = userDao.findUserById(userId);
+        boolean emailChanged = !user.getEmail().equals(existingUser.get().getEmail());
+        boolean idChanged = !user.getId().equals(existingUser.get().getId());
 
         if (emailChanged) {
             UserValidation.validateEmail(user.getEmail());
-            UserValidation.validateUserAlreadyExists(inMemoryUserStorage.findAll(), user, "email");
+            UserValidation.validateUserAlreadyExists(userDao.findAll(), user, "email");
         }
 
         if (idChanged) {
-            UserValidation.validateUserAlreadyExists(inMemoryUserStorage.findAll(), user, "id");
+            UserValidation.validateUserAlreadyExists(userDao.findAll(), user, "id");
         }
 
-        return inMemoryUserStorage.updateById(user, userId);
+        return userDao.updateById(user, userId);
     }
 
 
     public User create(User user) {
-        UserValidation.validateUserAlreadyExists(inMemoryUserStorage.findAll(), user, "email");
+        UserValidation.validateUserAlreadyExists(userDao.findAll(), user, "email");
         UserValidation.validateEmail(user.getEmail());
-        UserValidation.validateUserAlreadyExists(inMemoryUserStorage.findAll(), user, "id");
-        return inMemoryUserStorage.create(user);
+        UserValidation.validateUserAlreadyExists(userDao.findAll(), user, "id");
+        return userDao.create(user);
     }
 
 
     public Optional<User> deleteById(String userId) {
-        UserValidation.validateUserExists(inMemoryUserStorage.findAll(), userId);
-        return inMemoryUserStorage.deleteById(userId);
-    }*/
+        UserValidation.validateUserExists(userDao.findAll(), userId);
+        return userDao.deleteById(userId);
+    }
 }

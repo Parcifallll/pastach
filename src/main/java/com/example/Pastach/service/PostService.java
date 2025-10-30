@@ -18,12 +18,10 @@ import java.util.*;
 @Service
 public class PostService {
     private final PostDao postDao;
-    private final UserService userService;
     private final UserDao userDao;
 
-    public PostService(PostDao postDao, UserService userService, UserDao userDao) {
+    public PostService(PostDao postDao, UserDao userDao) {
         this.postDao = postDao;
-        this.userService = userService;
         this.userDao = userDao;
     }
 

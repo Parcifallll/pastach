@@ -10,4 +10,10 @@ public interface UserDao {
     Optional<User> findUserById(String id);
 
     List<User> findAll();
+
+    User updateById(User user, String userId);
+
+    User create(User user);
+
+    Optional<User> deleteById(String userId);
 }

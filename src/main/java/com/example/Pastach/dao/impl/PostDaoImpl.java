@@ -56,14 +56,15 @@ public class PostDaoImpl implements PostDao {
 
     @Override
     public Post create(Post post) {
-        String sql = "INSERT INTO posts(author_id, text, post_date) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO posts(author_id, text, photo_url, post_date) VALUES (?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
             ps.setString(1, post.getAuthor());
             ps.setString(2, post.getText());
-            ps.setTimestamp(3, Timestamp.from(Instant.from(post.getCreationDate())));
+            ps.setString(3, post.getPhotoUrl());
+            ps.setTimestamp(4, Timestamp.from(Instant.from(post.getCreationDate())));
             return ps;
         }, keyHolder);
 

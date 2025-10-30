@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.*;
 class PostDaoImplTest {
     @Autowired
     private UserDao userDao;
-    Autowired
+    @Autowired
     private PostDao postDao;
     private Post post;
 

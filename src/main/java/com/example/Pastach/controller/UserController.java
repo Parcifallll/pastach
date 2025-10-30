@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping
 public class UserController {
     private final UserService userService;
     private final Logger log = Logger.getLogger(UserController.class.getName());
@@ -20,15 +20,15 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/{login}")
+    @GetMapping("/users/{login}")
     public User getUser(@PathVariable String login) {
         log.info("getUser: " + login);
         return userService.findUserById(login);
     }
 
-    /*
     @GetMapping("/users")
-    public Map<String, User> findAll() {
+    public List<User> findAll() {
+        log.info("findAll");
         return userService.findAll();
     }
 
@@ -46,7 +46,4 @@ public class UserController {
     public Optional<User> deleteById(@PathVariable String userId) {
         return userService.deleteById(userId);
     }
-    */
-
-
 }
