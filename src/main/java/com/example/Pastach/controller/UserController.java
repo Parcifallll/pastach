@@ -4,17 +4,17 @@ package com.example.Pastach.controller;
 import com.example.Pastach.model.User;
 import com.example.Pastach.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 @RestController
 @RequestMapping
 public class UserController {
     private final UserService userService;
-    private final Logger log = Logger.getLogger(UserController.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -22,13 +22,13 @@ public class UserController {
 
     @GetMapping("/users/{login}")
     public User getUser(@PathVariable String login) {
-        log.info("getUser: " + login);
+        log.info("getUser: {}", login + log.getClass());
         return userService.findUserById(login);
     }
 
     @GetMapping("/users")
     public List<User> findAll() {
-        log.info("findAll");
+        log.info("findAll" + log.getClass().getName());
         return userService.findAll();
     }
 
