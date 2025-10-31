@@ -31,11 +31,10 @@ public class UserService {
     }
 
     public User updateById(User user, String userId) {
-        UserValidation.validateUserExists(userDao.findAll(), userId);
-        log.info("updateById: user exists");
-        Optional<User> existingUser = userDao.findUserById(userId);
-        boolean emailChanged = !user.getEmail().equals(existingUser.get().getEmail());
-        boolean idChanged = !user.getId().equals(existingUser.get().getId());
+        User existingUser = findUserById(userId);
+
+        boolean emailChanged = !user.getEmail().equals(existingUser.getEmail());
+        boolean idChanged = !user.getId().equals(existingUser.getId());
 
         if (emailChanged) {
             UserValidation.validateEmail(user.getEmail());

@@ -56,7 +56,7 @@ public class PostDaoImpl implements PostDao {
 
     @Override
     public Post create(Post post) {
-        String sql = "INSERT INTO posts(author_id, text, photo_url, post_date) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO posts(author_id, text, photo_url) VALUES (?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
@@ -64,7 +64,6 @@ public class PostDaoImpl implements PostDao {
             ps.setString(1, post.getAuthor());
             ps.setString(2, post.getText());
             ps.setString(3, post.getPhotoUrl());
-            ps.setTimestamp(4, Timestamp.from(Instant.from(post.getCreationDate())));
             return ps;
         }, keyHolder);
 
@@ -94,13 +93,11 @@ public class PostDaoImpl implements PostDao {
 
     @Override
     public Post updateById(Post post, int postId) {
-        String sql = "UPDATE posts SET author_id = ?, text = ?, photo_url = ?, creation_date = ? WHERE id = ?";
+        String sql = "UPDATE posts SET text = ?, photo_url = ? WHERE id = ?";
 
         int rowsAffected = jdbcTemplate.update(sql,
-                post.getAuthor(),
                 post.getText(),
                 post.getPhotoUrl(),
-                post.getCreationDate(),
                 postId
         );
 

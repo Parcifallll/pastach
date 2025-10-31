@@ -18,5 +18,12 @@ public class Post { // Post-entity
     private String text;
     @Setter
     private String photoUrl;
-    private LocalDateTime creationDate = LocalDateTime.now();
+    @Setter
+    private LocalDateTime creationDate; // DB automatically fill the creation time
+
+    public Post(String author, String text, String photoUrl) {
+        this.author = author;
+        this.text = text;
+        this.photoUrl = photoUrl;
+    }
 }
