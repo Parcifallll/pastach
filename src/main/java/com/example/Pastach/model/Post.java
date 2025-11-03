@@ -1,29 +1,42 @@
 package com.example.Pastach.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Getter
-@AllArgsConstructor
-public class Post { // Post-entity
-    @Setter
-    private int id;
-    @NonNull
-    private final String author;
-    @Setter
-    private String text;
-    @Setter
-    private String photoUrl;
-    @Setter
-    private LocalDateTime creationDate; // DB automatically fill the creation time
+@Setter
+@AllArgsConstructor(access = AccessLevel.PACKAGE) // for JPA
+@Entity
+@Table(name = "posts", schema = "public")
+@NoArgsConstructor // for JPA
+public class Post {
 
-    public Post(String author, String text, String photoUrl) {
-        this.author = author;
+    @Id
+    @Setter(AccessLevel.NONE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @Column(name = "author_id", nullable = false)
+    private String author;
+
+    @Column(name = "text")
+    private String text;
+
+    @Column(name = "photo_url")
+    private String photoUrl;
+
+    @CreationTimestamp
+    @Setter(AccessLevel.NONE)
+    @Column(name = "creation_date", nullable = false)
+    private LocalDateTime creationDate;
+
+    // for PostService and PostMapper
+    public Post(String text, String photoUrl, String author) {
         this.text = text;
         this.photoUrl = photoUrl;
+        this.author = author;
     }
 }

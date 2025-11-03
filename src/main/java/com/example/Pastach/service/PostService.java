@@ -2,10 +2,12 @@ package com.example.Pastach.service;
 
 import com.example.Pastach.dao.PostDao;
 import com.example.Pastach.dao.UserDao;
+import com.example.Pastach.dto.post.PostCreateDTO;
+import com.example.Pastach.dto.post.PostResponseDTO;
+import com.example.Pastach.dto.post.PostUpdateDTO;
 import com.example.Pastach.exception.UserNotFoundException;
 import com.example.Pastach.model.Post;
 import com.example.Pastach.model.User;
-import com.example.Pastach.storage.post.InMemoryPostStorage;
 import com.example.Pastach.validation.PostValidation;
 import com.example.Pastach.validation.UserValidation;
 import org.springframework.stereotype.Service;
@@ -17,12 +19,16 @@ import java.util.*;
 
 @Service
 public class PostService {
-    private final PostDao postDao;
+    private final PostCreateDTO postCreateDTO;
+    private final PostUpdateDTO postUpdateDTO;
+    private final PostResponseDTO postResponseDTO;
     private final UserDao userDao;
 
-    public PostService(PostDao postDao, UserDao userDao) {
+    public PostService(PostDao postDao, PostCreateDTO PostUpdateDTO     private final PostResponseDTO postResponseDTO;
+    UserDao userDao) {
         this.postDao = postDao;
         this.userDao = userDao;
+        this.postUpdateDTO = po;
     }
 
     public Collection<Post> findPostsByUser(String userId) {
