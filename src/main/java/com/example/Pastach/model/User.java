@@ -1,41 +1,38 @@
 package com.example.Pastach.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
 
+@Entity
+@Table(name = "users", schema = "public")
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor
-@NoArgsConstructor
-@EqualsAndHashCode(of = {"id"})
-@Table(name = "users", schema = "public")
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // only for JPA
+@EqualsAndHashCode(of = "id")
 public class User {
-    @NonNull
-    @NotBlank
+
     @Id
+    @Column(nullable = false, updatable = false)
     private String id;
 
     @Column(name = "user_name")
     private String userName = "no_name";
 
-    @NonNull
-    @NotBlank
-    @Email
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true, updatable = false)
     private String email;
 
-    @JsonFormat(pattern = "dd.MM.yyyy") // we should add a dependency
     @Column(name = "birthday")
     private LocalDate birthday;
-}
 
+    // for service
+    public User(String id, String email, String userName, LocalDate birthday) {
+        this.id = id;
+        this.email = email;
+        this.userName = (userName == null || userName.isBlank()) ? "no_name" : userName.trim();
+        this.birthday = birthday;
+    }
+}
