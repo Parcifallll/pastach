@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Setter
 public class PostResponseDTO {
     private int id;
-    private String author;
+    private String authorId;
     private String text;
     private String photoUrl;
     private LocalDateTime creationDate;

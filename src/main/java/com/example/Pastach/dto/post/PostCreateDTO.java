@@ -8,5 +8,5 @@ import lombok.Setter;
 @Setter
 public class PostCreateDTO {
     private String text;
-    private String photo_url;
+    private String photoUrl;
 }

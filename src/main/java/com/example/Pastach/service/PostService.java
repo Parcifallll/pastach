@@ -1,61 +1,69 @@
 package com.example.Pastach.service;
 
-import com.example.Pastach.dao.PostDao;
-import com.example.Pastach.dao.UserDao;
 import com.example.Pastach.dto.post.PostCreateDTO;
 import com.example.Pastach.dto.post.PostResponseDTO;
 import com.example.Pastach.dto.post.PostUpdateDTO;
+import com.example.Pastach.exception.PostNotFoundException;
 import com.example.Pastach.exception.UserNotFoundException;
+import com.example.Pastach.dto.mapper.PostMapper;
 import com.example.Pastach.model.Post;
-import com.example.Pastach.model.User;
-import com.example.Pastach.validation.PostValidation;
-import com.example.Pastach.validation.UserValidation;
+import com.example.Pastach.repository.PostRepository;
+import com.example.Pastach.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.List;
 
 @Service
+@RequiredArgsConstructor // generate constructor for final-fields
 public class PostService {
-    private final PostCreateDTO postCreateDTO;
-    private final PostUpdateDTO postUpdateDTO;
-    private final PostResponseDTO postResponseDTO;
-    private final UserDao userDao;
 
-    public PostService(PostDao postDao, PostCreateDTO PostUpdateDTO     private final PostResponseDTO postResponseDTO;
-    UserDao userDao) {
-        this.postDao = postDao;
-        this.userDao = userDao;
-        this.postUpdateDTO = po;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final PostMapper postMapper;
+
+
+    @Transactional
+    public PostResponseDTO create(PostCreateDTO dto, String authorId) {
+        if (!userRepository.existsById(authorId)) {
+            throw new UserNotFoundException(authorId);
+        }
+
+        Post post = postMapper.toEntity(dto, authorId);
+        post = postRepository.save(post); // create Post from dto
+        return postMapper.toResponseDto(post);
     }
 
-    public Collection<Post> findPostsByUser(String userId) {
-        UserValidation.validateUserExists(userDao.findAll(), userId);
-        return postDao.findPostsByUser(userId);
+    @Transactional(readOnly = true)
+    public PostResponseDTO getById(int postId) {
+        return postRepository.findById(postId)
+                .map(postMapper::toResponseDto) // map: Post -> PostResponseDto
+                .orElseThrow(() -> new PostNotFoundException(postId));
     }
 
-    public Collection<Post> findAll() {
-        return postDao.findAll();
+    @Transactional(readOnly = true)
+    public List<PostResponseDTO> getAll() {
+        return postRepository.findAll().stream()
+                .map(postMapper::toResponseDto)
+                .toList();
     }
 
-    public Collection<Post> searchPosts(String author, LocalDate creationDate) {
-        return postDao.searchPosts(author, creationDate);
+    @Transactional
+    public PostResponseDTO updateById(int postId, PostUpdateDTO dto) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(postId));
+
+        postMapper.updateFromDto(dto, post);
+        post = postRepository.save(post);  // update existing post with new data from dto
+        return postMapper.toResponseDto(post);
     }
 
-
-    public Post create(Post post) {
-        return postDao.create(post);
+    @Transactional
+    public void deleteById(int postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(postId));
+        postRepository.delete(post);
     }
 
-    public Optional<Post> deleteById(int postId) {
-        PostValidation.validatePostExists(postDao.findAll(), postId);
-        return postDao.deleteById(postId);
-    }
-
-    public Post updateById(Post post, int postId) {
-        PostValidation.validatePostExists(postDao.findAll(), postId);
-        return postDao.updateById(post, postId);
-    }
 }

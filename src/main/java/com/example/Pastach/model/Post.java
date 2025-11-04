@@ -17,10 +17,11 @@ public class Post {
     @Id
     @Setter(AccessLevel.NONE)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private int id;
 
     @Column(name = "author_id", nullable = false)
-    private String author;
+    private String authorId;
 
     @Column(name = "text")
     private String text;
@@ -34,9 +35,9 @@ public class Post {
     private LocalDateTime creationDate;
 
     // for PostService and PostMapper
-    public Post(String text, String photoUrl, String author) {
+    public Post(String text, String photoUrl, String authorId) {
         this.text = text;
         this.photoUrl = photoUrl;
-        this.author = author;
+        this.authorId = authorId;
     }
 }
