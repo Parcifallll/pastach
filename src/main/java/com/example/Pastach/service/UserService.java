@@ -5,7 +5,6 @@ import com.example.Pastach.exception.UserAlreadyExistException;
 import com.example.Pastach.exception.UserNotFoundException;
 import com.example.Pastach.model.User;
 import com.example.Pastach.repository.UserRepository;
-import com.example.Pastach.validation.UserValidation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,15 +22,15 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO create(UserCreateDTO dto) {
-        if (userRepository.existsById(dto.getId())) {
-            throw new UserAlreadyExistException("User with id " + dto.getId() + " already exists");
+        if (userRepository.existsById(dto.id())) {
+            throw new UserAlreadyExistException("User with id " + dto.id() + " already exists");
         }
 
-        if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new UserAlreadyExistException("User with email " + dto.getEmail() + " already exists");
+        if (userRepository.existsByEmail(dto.email())) {
+            throw new UserAlreadyExistException("User with email " + dto.email() + " already exists");
         }
 
-        User user = userRepository.save(userMapper.toEntity(dto, dto.getId()));
+        User user = userRepository.save(userMapper.toEntity(dto, dto.id()));
         return userMapper.toResponseDto(user);
     }
 
@@ -53,10 +52,6 @@ public class UserService {
     @Transactional
     public UserResponseDTO updateById(String userId, UserUpdateDTO dto) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-
-        if (userRepository.existsById(dto.getId())) {
-            throw new UserAlreadyExistException("User with id " + dto.getId() + " already exists");
-        }
 
         userMapper.updateFromDto(dto, user);
         user = userRepository.save(user); // updated existing user from dto

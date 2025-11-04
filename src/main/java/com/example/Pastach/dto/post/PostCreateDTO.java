@@ -1,12 +1,11 @@
 package com.example.Pastach.dto.post;
 
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
-public class PostCreateDTO {
-    private String text;
-    private String photoUrl;
+@Builder
+public record PostCreateDTO(String text, String photoUrl) {
 }
+

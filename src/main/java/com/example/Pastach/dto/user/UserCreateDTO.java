@@ -2,22 +2,18 @@ package com.example.Pastach.dto.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Getter @Setter
-public class UserCreateDTO { // with validation
-
-    @NotBlank(message = "ID can't be blank")
-    private String id;
-
-    @NotBlank(message = "Email can't be blank")
-    @Email(message = "Invalid email") // validation in DTO + Controller (@Valid)
-    private String email;
-
-    private String userName;
-
-    private LocalDate birthday;
+@Builder
+public record UserCreateDTO(
+        @NotBlank String id,
+        @NotBlank @Email String email,
+        String userName,
+        LocalDate birthday
+) {
 }
