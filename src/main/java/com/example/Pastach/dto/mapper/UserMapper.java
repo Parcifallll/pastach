@@ -11,11 +11,13 @@ import org.mapstruct.*;
 public interface UserMapper {
 
     // create: DTO -> Entity
-    @Mapping(target = "userName", source = "username", defaultValue = "no_name")
     // other fields will be mapped automatically (do not require default value + exist in DTO with the same name)
-    User toEntity(UserCreateDTO dto, String author);
+    @Mapping(target = "userName", source = "userCreateDTO.userName", defaultValue = "no_name")
+    User toEntity(UserCreateDTO userCreateDTO, String author);
 
     // update: DTO -> Entity
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "email", ignore = true)
     void updateFromDto(UserUpdateDTO dto, @MappingTarget User user);
 
     // response: entity -> dto

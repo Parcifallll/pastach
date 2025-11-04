@@ -35,7 +35,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserResponseDTO getUser(String userId) {
+    public UserResponseDTO getById(String userId) {
         return userRepository.findById(userId)
                 .map(userMapper::toResponseDto)
                 .orElseThrow(() -> new UserNotFoundException(userId));

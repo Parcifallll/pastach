@@ -1,41 +1,43 @@
 package com.example.Pastach.controller;
 
 import com.example.Pastach.exception.*;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.sql.SQLException;
+import java.util.List;
 
 @RestControllerAdvice("com.example.Pastach.controller")
 @ResponseBody
 public class ErrorHandler {
-    public static class ErrorResponse {
-        private final String error;
-
-        public ErrorResponse(String error) {
-            this.error = error;
-        }
-
-        public String getError() {
-            return error;
-        }
+    public record ErrorResponse(String error) {
     }
 
-    @ExceptionHandler(PostNotFoundException.class)
+    public record ValidationError(String field, String message) {
+    }
+
+    public record ValidationResponse(String error, List<ValidationError> details) {
+    }
+
+    // handle @Valid
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ValidationResponse handleValidation(MethodArgumentNotValidException e) {
+        List<ValidationError> errors = e.getBindingResult().getFieldErrors().stream()
+                .map(err -> new ValidationError(err.getField(), err.getDefaultMessage()))
+                .toList();
+        return new ValidationResponse("Validation failed", errors);
+    }
+
+    @ExceptionHandler({PostNotFoundException.class, UserNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handlePostNotFoundException(final PostNotFoundException e) {
+    public ErrorResponse handleNotFound(RuntimeException e) {
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleUserNotFoundException(final UserNotFoundException e) {
-        return new ErrorResponse(e.getMessage());
-    }
 
     @ExceptionHandler(UserAlreadyExistException.class)
     @ResponseStatus(HttpStatus.CONFLICT) // 409 code-status
@@ -60,11 +62,5 @@ public class ErrorHandler {
     public ErrorResponse handleThrowable(final Throwable e) {
         e.printStackTrace();
         return new ErrorResponse("Something went wrong...");
-    }
-
-    @ExceptionHandler(SQLException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleSQLException(final SQLException e) {
-        return new ErrorResponse("Database error: " + e.getMessage());
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SimpleController {
 
-    @RequestMapping("/home")
+    @RequestMapping("/")
     public String homePage() {
         return "Pastach";
     }

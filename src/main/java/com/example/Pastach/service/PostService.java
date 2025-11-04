@@ -43,6 +43,17 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
+    public List<PostResponseDTO> getByAuthorId(String authorId){
+        if (!userRepository.existsById(authorId)) {
+            throw new UserNotFoundException(authorId);
+        }
+
+        return postRepository.findPostsByAuthorId(authorId).stream()
+                .map(postMapper::toResponseDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<PostResponseDTO> getAll() {
         return postRepository.findAll().stream()
                 .map(postMapper::toResponseDto)

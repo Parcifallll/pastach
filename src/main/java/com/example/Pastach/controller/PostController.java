@@ -1,52 +1,52 @@
 package com.example.Pastach.controller;
 
-import com.example.Pastach.model.Post;
+import com.example.Pastach.dto.post.PostCreateDTO;
+import com.example.Pastach.dto.post.PostResponseDTO;
+import com.example.Pastach.dto.post.PostUpdateDTO;
 import com.example.Pastach.service.PostService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
+@RequiredArgsConstructor
+@RequestMapping("/posts")
 @RestController
-public class PostController { //manage Posts
+public class PostController {
     private final PostService postService;
 
-    public PostController(PostService postService) { // DI
-        this.postService = postService;
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public PostResponseDTO create(@Valid @RequestBody PostCreateDTO dto, @RequestParam String authorId) {
+        return postService.create(dto, authorId);
     }
 
-    @GetMapping("/posts/{userId}") // http://localhost:8080/posts/12
-    public Collection<Post> getPosts(@PathVariable String userId) {
-        return postService.findPostsByUser(userId);
+    @GetMapping
+    public Collection<PostResponseDTO> getAll() {
+        return postService.getAll();
     }
 
-    @GetMapping("posts/search") // http://localhost:8080/posts/search?author=Roman
-    public Collection<Post> searchPosts(@RequestParam String author, @RequestParam @DateTimeFormat(pattern = "dd.MM.yyyy") LocalDate creationDate) {
-        return postService.searchPosts(author, creationDate);
+    @GetMapping("/user/{userId}") // http://localhost:8080/posts/12
+    public Collection<PostResponseDTO> getByAuthorId(@PathVariable String userId) {
+        return postService.getByAuthorId(userId);
     }
 
-    @GetMapping("/posts") // endpoint
-    public Collection<Post> findAll() {
-        return postService.findAll();
+    @PatchMapping("/{postId}")
+    public PostResponseDTO updateById(@PathVariable int postId, @Valid @RequestBody PostUpdateDTO dto) {
+        return postService.updateById(postId, dto);
     }
 
-    @PostMapping(value = "/post") // endpoint
-    public Post create(@RequestBody Post post) {
-        return postService.create(post);
+    @DeleteMapping("/{postId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteById(@PathVariable int postId) {
+        postService.deleteById(postId);
     }
 
-    @DeleteMapping("/posts/{postId}")
-    public Optional<Post> deleteById(@PathVariable int postId) {
-        return postService.deleteById(postId);
-    }
+//    @GetMapping("posts/search") // http://localhost:8080/posts/search?author=Roman
+//    public Collection<Post> searchPosts(@RequestParam String author, @RequestParam @DateTimeFormat(pattern = "dd.MM.yyyy") LocalDate creationDate) {
+//        return postService.searchPosts(author, creationDate);
+//    }
 
-    @PutMapping("/posts/{postId}")
-    public Post updateById(@RequestBody Post post, @PathVariable int postId) {
-        return postService.updateById(post, postId);
-    }
 }

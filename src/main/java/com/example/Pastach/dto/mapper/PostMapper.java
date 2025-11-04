@@ -5,6 +5,8 @@ import com.example.Pastach.dto.post.PostResponseDTO;
 import com.example.Pastach.dto.post.PostUpdateDTO;
 import com.example.Pastach.model.Post;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -14,6 +16,7 @@ public interface PostMapper {
 
     PostResponseDTO toResponseDto(Post post);
 
-    void updateFromDto(PostUpdateDTO postUpdateDTO, Post post);
+    @Mapping(target="authorId", ignore = true)
+    void updateFromDto(PostUpdateDTO postUpdateDTO, @MappingTarget Post post);
 
 }

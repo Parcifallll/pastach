@@ -1,49 +1,51 @@
 package com.example.Pastach.controller;
 
 
+import com.example.Pastach.dto.user.UserCreateDTO;
+import com.example.Pastach.dto.user.UserResponseDTO;
+import com.example.Pastach.dto.user.UserUpdateDTO;
 import com.example.Pastach.model.User;
 import com.example.Pastach.service.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+
+@RequiredArgsConstructor
+@RequestMapping("/users")
 @RestController
-@RequestMapping
 public class UserController {
     private final UserService userService;
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+    @ResponseStatus(HttpStatus.CREATED)  // 201
+    @PostMapping
+    public UserResponseDTO create(@Valid @RequestBody UserCreateDTO dto) {
+        return userService.create(dto);
     }
 
-    @GetMapping("/users/{login}")
-    public User getUser(@PathVariable String login) {
-        log.info("getUser: {}", login + log.getClass());
-        return userService.findUserById(login);
+    @GetMapping("/{userId}")
+    public UserResponseDTO getUser(@PathVariable String userId) {
+        return userService.getById(userId);
     }
 
-    @GetMapping("/users")
-    public List<User> findAll() {
-        log.info("findAll" + log.getClass().getName());
-        return userService.findAll();
+    @GetMapping
+    public List<UserResponseDTO> getAll() {
+        return userService.getAll();
     }
 
-    @PutMapping("/users/{userId}") // update info
-    public User update(@RequestBody User user, @PathVariable String userId) {
-        return userService.updateById(user, userId);
+    @PatchMapping("/{userId}") // update info
+    public UserResponseDTO update(@PathVariable String userId, @Valid @RequestBody UserUpdateDTO dto) {
+        return userService.updateById(userId, dto);
     }
 
-    @PostMapping("/user")
-    public User create(@Valid @RequestBody User user) {
-        return userService.create(user);
-    }
-
-    @DeleteMapping("/users/{userId}")
-    public Optional<User> deleteById(@PathVariable String userId) {
-        return userService.deleteById(userId);
+    @ResponseStatus(HttpStatus.NO_CONTENT)  // 201
+    @DeleteMapping("/{userId}")
+    public void deleteById(@PathVariable String userId) {
+        userService.deleteById(userId);
     }
 }
