@@ -1,64 +1,74 @@
 package com.example.Pastach.service;
 
-import com.example.Pastach.dao.UserDao;
+import com.example.Pastach.dto.mapper.UserMapper;
+import com.example.Pastach.exception.UserAlreadyExistException;
 import com.example.Pastach.exception.UserNotFoundException;
 import com.example.Pastach.model.User;
-import com.example.Pastach.storage.user.InMemoryUserStorage;
+import com.example.Pastach.repository.UserRepository;
 import com.example.Pastach.validation.UserValidation;
-import jakarta.annotation.Nullable;
-import org.springframework.context.annotation.Primary;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.example.Pastach.dto.user.UserCreateDTO;
+import com.example.Pastach.dto.user.UserResponseDTO;
+import com.example.Pastach.dto.user.UserUpdateDTO;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    private final UserDao userDao;
-    private final Logger log = Logger.getLogger(UserService.class.getName());
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public UserService(UserDao userDao) {
-        this.userDao = userDao;
-    }
-
-    public User findUserById(String userId) {
-        log.info("(UserService): findUserById " + userId);
-        return userDao.findUserById(userId).orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
-    }
-
-    public List<User> findAll() {
-        return userDao.findAll();
-    }
-
-    public User updateById(User user, String userId) {
-        User existingUser = findUserById(userId);
-
-        boolean emailChanged = !user.getEmail().equals(existingUser.getEmail());
-        boolean idChanged = !user.getId().equals(existingUser.getId());
-
-        if (emailChanged) {
-            UserValidation.validateEmail(user.getEmail());
-            UserValidation.validateUserAlreadyExists(userDao.findAll(), user, "email");
+    @Transactional
+    public UserResponseDTO create(UserCreateDTO dto) {
+        if (userRepository.existsById(dto.getId())) {
+            throw new UserAlreadyExistException("User with id " + dto.getId() + " already exists");
         }
 
-        if (idChanged) {
-            UserValidation.validateUserAlreadyExists(userDao.findAll(), user, "id");
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new UserAlreadyExistException("User with email " + dto.getEmail() + " already exists");
         }
 
-        return userDao.updateById(user, userId);
+        User user = userRepository.save(userMapper.toEntity(dto, dto.getId()));
+        return userMapper.toResponseDto(user);
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponseDTO getUser(String userId) {
+        return userRepository.findById(userId)
+                .map(userMapper::toResponseDto)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponseDTO> getAll() {
+        return userRepository.findAll().stream()
+                .map(userMapper::toResponseDto)
+                .toList();
     }
 
 
-    public User create(User user) {
-        UserValidation.validateUserAlreadyExists(userDao.findAll(), user, "email");
-        UserValidation.validateEmail(user.getEmail());
-        UserValidation.validateUserAlreadyExists(userDao.findAll(), user, "id");
-        return userDao.create(user);
+    @Transactional
+    public UserResponseDTO updateById(String userId, UserUpdateDTO dto) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+
+        if (userRepository.existsById(dto.getId())) {
+            throw new UserAlreadyExistException("User with id " + dto.getId() + " already exists");
+        }
+
+        userMapper.updateFromDto(dto, user);
+        user = userRepository.save(user); // updated existing user from dto
+        return userMapper.toResponseDto(user);
     }
 
 
-    public Optional<User> deleteById(String userId) {
-        UserValidation.validateUserExists(userDao.findAll(), userId);
-        return userDao.deleteById(userId);
+    @Transactional
+    public void deleteById(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        userRepository.delete(user);
     }
 }

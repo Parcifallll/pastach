@@ -13,10 +13,9 @@ import java.time.LocalDate;
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // only for JPA
 @EqualsAndHashCode(of = "id")
-public class User {
-
+public class User { // no constructors -> MapStruct create object automatically
     @Id
-    @Column(nullable = false, updatable = false)
+    @Column(name = "id", nullable = false, updatable = false)
     private String id;
 
     @Column(name = "user_name")
@@ -27,12 +26,4 @@ public class User {
 
     @Column(name = "birthday")
     private LocalDate birthday;
-
-    // for service
-    public User(String id, String email, String userName, LocalDate birthday) {
-        this.id = id;
-        this.email = email;
-        this.userName = (userName == null || userName.isBlank()) ? "no_name" : userName.trim();
-        this.birthday = birthday;
-    }
 }

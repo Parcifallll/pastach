@@ -8,6 +8,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class UserUpdateDTO {
+    private String id;
     private String userName;
     private LocalDate birthday;
 }

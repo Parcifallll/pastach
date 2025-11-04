@@ -7,10 +7,10 @@ import java.util.Collection;
 import java.util.Map;
 
 public class PostValidation {
-    public static void validatePostExists(Collection<Post> posts, int postId){
-        if (posts.stream()
-                .noneMatch(post -> post.getId() == postId)){
-            throw new PostNotFoundException("Post with id " + postId + " is not found");
-        }
-    }
+//    public static void validatePostExists(Collection<Post> posts, int postId){
+//        if (posts.stream()
+//                .noneMatch(post -> post.getId() == postId)){
+//            throw new PostNotFoundException("Post with id " + postId + " is not found");
+//        }
+//    }
 }

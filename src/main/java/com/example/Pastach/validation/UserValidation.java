@@ -15,26 +15,4 @@ public class UserValidation {
             throw new InvalidEmailException("Invalid email address: " + email);
         }
     }
-
-    public static void validateUserAlreadyExists(Collection<User> users, User user, String field) {
-        if (field.equals("email")) {
-            boolean emailExists = users.stream().anyMatch(u -> u.getEmail().equals(user.getEmail()));
-            if (emailExists) {
-                throw new UserAlreadyExistException("User with email " + user.getEmail() + " already exists");
-            }
-        } else if (field.equals("id")) {
-            boolean idExists = users.stream().anyMatch(u -> u.getId().equals(user.getId()));
-            if (idExists) {
-                throw new UserAlreadyExistException("User with id " + user.getId() + " already exists");
-            }
-        }
-    }
-
-
-    public static void validateUserExists(List<User> users, String userId) {
-        if (!users.stream().anyMatch(user -> user.getId().equals(userId))) {
-            throw new UserNotFoundException("User with id " + userId + " is not found");
-        }
-    }
-
 }

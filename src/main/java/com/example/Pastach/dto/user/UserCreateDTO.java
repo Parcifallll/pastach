@@ -14,7 +14,7 @@ public class UserCreateDTO { // with validation
     private String id;
 
     @NotBlank(message = "Email can't be blank")
-    @Email(message = "Invalid email")
+    @Email(message = "Invalid email") // validation in DTO + Controller (@Valid)
     private String email;
 
     private String userName;
