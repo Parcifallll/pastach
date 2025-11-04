@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS posts (
     author_id VARCHAR(64) NOT NULL,
     text VARCHAR(1000),
     photo_url VARCHAR(1000),
-    creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    creation_date TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_post_author
     FOREIGN KEY(author_id)
     REFERENCES users(id)

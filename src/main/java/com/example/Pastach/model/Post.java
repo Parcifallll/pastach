@@ -31,7 +31,7 @@ public class Post {
 
     @CreationTimestamp
     @Setter(AccessLevel.NONE)
-    @Column(name = "creation_date", nullable = false)
+    @Column(name = "creation_date", columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime creationDate;
 
     // for PostService and PostMapper

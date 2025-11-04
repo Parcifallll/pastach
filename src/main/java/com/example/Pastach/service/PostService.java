@@ -10,6 +10,8 @@ import com.example.Pastach.model.Post;
 import com.example.Pastach.repository.PostRepository;
 import com.example.Pastach.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,22 +45,22 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponseDTO> getByAuthorId(String authorId){
+    public Page<PostResponseDTO> getAll(Pageable pageable) {
+        Page<Post> page = postRepository.findAll(pageable);
+        return page.map(postMapper::toResponseDto);
+    }
+
+    // with pagination
+    @Transactional(readOnly = true)
+    public Page<PostResponseDTO> getByAuthorId(String authorId, Pageable pageable) {
         if (!userRepository.existsById(authorId)) {
             throw new UserNotFoundException(authorId);
         }
 
-        return postRepository.findPostsByAuthorId(authorId).stream()
-                .map(postMapper::toResponseDto)
-                .toList();
+        Page<Post> page = postRepository.findByAuthorId(authorId, pageable);
+        return page.map(postMapper::toResponseDto);
     }
 
-    @Transactional(readOnly = true)
-    public List<PostResponseDTO> getAll() {
-        return postRepository.findAll().stream()
-                .map(postMapper::toResponseDto)
-                .toList();
-    }
 
     @Transactional
     public PostResponseDTO updateById(int postId, PostUpdateDTO dto) {

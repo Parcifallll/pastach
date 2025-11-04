@@ -6,6 +6,10 @@ import com.example.Pastach.dto.post.PostUpdateDTO;
 import com.example.Pastach.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,14 +27,20 @@ public class PostController {
         return postService.create(dto, authorId);
     }
 
+    /* with pagination
+    http://localhost:8080/posts?page=5&size=20&sort=photoUrl,desc
+    http://localhost:8080/posts
+    http://localhost:8080/posts?page=2&size=1
+     */
     @GetMapping
-    public Collection<PostResponseDTO> getAll() {
-        return postService.getAll();
+    public Page<PostResponseDTO> getAllPaged(@PageableDefault(size = 10, sort = "creationDate", direction = Sort.Direction.DESC) Pageable pageable) {
+        return postService.getAll(pageable);
     }
 
-    @GetMapping("/user/{userId}") // http://localhost:8080/posts/12
-    public Collection<PostResponseDTO> getByAuthorId(@PathVariable String userId) {
-        return postService.getByAuthorId(userId);
+    @GetMapping("/users/{authorId}/posts")
+    public Page<PostResponseDTO> getByAuthorId(@PathVariable String authorId,
+                                               @PageableDefault(size = 10, sort = "creationDate", direction = Sort.Direction.DESC) Pageable pageable) {
+        return postService.getByAuthorId(authorId, pageable);
     }
 
     @PatchMapping("/{postId}")
