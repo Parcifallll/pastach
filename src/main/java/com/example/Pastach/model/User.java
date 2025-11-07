@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users", schema = "public")
@@ -18,12 +20,27 @@ public class User { // no constructors -> MapStruct create object automatically
     @Column(name = "id", nullable = false, updatable = false)
     private String id;
 
-    @Column(name = "username")
-    private String userName = "no_name";
+    @Column(name="password", nullable = false)
+    private String password;
+
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
 
     @Column(name = "email", nullable = false, unique = true, updatable = false)
     private String email;
 
-    @Column(name = "birthday")
+    @Column(name = "birthday", nullable = false)
     private LocalDate birthday;
+
+    @Column(name = "is_locked")
+    private boolean isLocked = false;
+
+    @ManyToMany(fetch = FetchType.EAGER) // create temp table of roles while requesting user
+    @JoinTable(	name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 }

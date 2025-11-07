@@ -1,14 +1,17 @@
 package com.example.Pastach.dto.user;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Builder
 public record UserUpdateDTO(
-        String userName,
-        LocalDate birthday
+        String firstName,
+        String lastName,
+        LocalDate birthday,
+        String password,
+        Set<String> roles,
+        boolean isLocked
 ) {
 }
