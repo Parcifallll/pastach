@@ -28,7 +28,7 @@ public class PostService {
     private final PostMapper postMapper;
 
 
-    @PreAuthorize("authenticated()")
+    @PreAuthorize("isAuthenticated()")
     @Transactional
     public PostResponseDTO create(PostCreateDTO dto, String authorId) {
         Post post = postMapper.toEntity(dto);
@@ -62,7 +62,7 @@ public class PostService {
     }
 
 
-    @PreAuthorize("authenticated()") // @PreAuthorize("authenticated()") + @AuthenticationPrincipal ... !
+    @PreAuthorize("isAuthenticated()") // @PreAuthorize("authenticated()") + @AuthenticationPrincipal ... !
     @Transactional
     public PostResponseDTO updateById(int postId, PostUpdateDTO dto, @AuthenticationPrincipal User curUser) {
         Post post = postRepository.findById(postId)
@@ -77,7 +77,7 @@ public class PostService {
         return postMapper.toResponseDto(post);
     }
 
-    @PreAuthorize("authenticated()")
+    @PreAuthorize("isAuthenticated()")
     @Transactional
     public void deleteById(int postId, @AuthenticationPrincipal User currentUser) {
         Post post = postRepository.findById(postId)

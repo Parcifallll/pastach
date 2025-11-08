@@ -72,7 +72,7 @@ public class UserService {
     }
 
 
-    @PreAuthorize("authenticated()")
+    @PreAuthorize("isAuthenticated()")
     @Transactional
     public UserResponseDTO updateById(String userId, UserUpdateDTO dto, @AuthenticationPrincipal User currentUser) {
         if (!userId.equals(currentUser.getId())) {
@@ -98,7 +98,7 @@ public class UserService {
     }
 
 
-    @PreAuthorize("authenticated()")
+    @PreAuthorize("isAuthenticated()")
     @Transactional
     public void changePassword(String userId, PasswordChangeDTO dto, @AuthenticationPrincipal User currentUser) {
         if (!userId.equals(currentUser.getId())) {
