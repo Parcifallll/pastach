@@ -12,11 +12,12 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 // user do not update value (null) -> value is not updated (PATCH instead of PUT)
 public interface PostMapper {
-    Post toEntity(PostCreateDTO postCreateDTO, String authorId);
+    Post toEntity(PostCreateDTO postCreateDTO);
 
     PostResponseDTO toResponseDto(Post post);
 
     @Mapping(target="authorId", ignore = true)
+    @Mapping(target="createdAt", ignore = true)
     void updateFromDto(PostUpdateDTO postUpdateDTO, @MappingTarget Post post);
 
 }

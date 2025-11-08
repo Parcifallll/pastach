@@ -2,6 +2,8 @@ package com.example.Pastach.controller;
 
 import com.example.Pastach.exception.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -62,5 +64,17 @@ public class ErrorHandler {
     public ErrorResponse handleThrowable(final Throwable e) {
         e.printStackTrace();
         return new ErrorResponse("Something went wrong...");
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleAuthenticationException(AuthenticationException e) {
+        return new ErrorResponse("Authentication failed: " + e.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleAccessDeniedException(AccessDeniedException e) {
+        return new ErrorResponse("Access denied: " + e.getMessage());
     }
 }

@@ -22,12 +22,6 @@ public record UserCreateDTO(
         @NotBlank
         String lastName,
 
-        LocalDate birthday,
-
-        boolean isLocked,
-
-        @NotBlank @Size(min = 4)
-        String password,
-        Set<String> roles
+        LocalDate birthday
 ) {
 }

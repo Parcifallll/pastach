@@ -3,6 +3,7 @@ package com.example.Pastach.controller;
 import com.example.Pastach.dto.post.PostCreateDTO;
 import com.example.Pastach.dto.post.PostResponseDTO;
 import com.example.Pastach.dto.post.PostUpdateDTO;
+import com.example.Pastach.model.User;
 import com.example.Pastach.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,53 +11,125 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 
-@RequiredArgsConstructor
-@RequestMapping("/posts")
 @RestController
+@RequestMapping("/posts")
+@RequiredArgsConstructor
 public class PostController {
+
     private final PostService postService;
 
+
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public PostResponseDTO create(@Valid @RequestBody PostCreateDTO dto, @RequestParam String authorId) {
-        return postService.create(dto, authorId);
+    public ResponseEntity<PostResponseDTO> createPost(
+            @Valid @RequestBody PostCreateDTO dto,
+            @AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(postService.create(dto, currentUser.getId()));
     }
 
-    /* with pagination
-    http://localhost:8080/posts?page=5&size=20&sort=photoUrl,desc
-    http://localhost:8080/posts
-    http://localhost:8080/posts?page=2&size=1
-     */
     @GetMapping
-    public Page<PostResponseDTO> getAllPaged(@PageableDefault(size = 10, sort = "creationDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        return postService.getAll(pageable);
+    public PagedModel<PostResponseDTO> getAllPosts(
+            @PageableDefault(size = 15, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<PostResponseDTO> page = postService.getAll(pageable);
+
+        PagedModel<PostResponseDTO> pagedModel = PagedModel.of(
+                page.getContent(),
+                new PagedModel.PageMetadata(
+                        page.getSize(),
+                        page.getNumber(),
+                        page.getTotalElements(),
+                        page.getTotalPages()
+                )
+        );
+
+        Link selfLink = WebMvcLinkBuilder.linkTo(
+                WebMvcLinkBuilder.methodOn(PostController.class).getAllPosts(pageable)
+        ).withSelfRel();
+        pagedModel.add(selfLink);
+
+        if (page.hasNext()) {
+            Link nextLink = WebMvcLinkBuilder.linkTo(
+                    WebMvcLinkBuilder.methodOn(PostController.class).getAllPosts(page.nextPageable())
+            ).withRel("next");
+            pagedModel.add(nextLink);
+        }
+
+        if (page.hasPrevious()) {
+            Link prevLink = WebMvcLinkBuilder.linkTo(
+                    WebMvcLinkBuilder.methodOn(PostController.class).getAllPosts(page.previousPageable())
+            ).withRel("prev");
+            pagedModel.add(prevLink);
+        }
+
+        return pagedModel;
     }
 
     @GetMapping("/users/{authorId}/posts")
-    public Page<PostResponseDTO> getByAuthorId(@PathVariable String authorId,
-                                               @PageableDefault(size = 10, sort = "creationDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        return postService.getByAuthorId(authorId, pageable);
+    public PagedModel<PostResponseDTO> getPostsByAuthorId(
+            @PathVariable String authorId,
+            @PageableDefault(size = 15, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<PostResponseDTO> page = postService.getByAuthorId(authorId, pageable);
+
+        PagedModel<PostResponseDTO> pagedModel = PagedModel.of(
+                page.getContent(),
+                new PagedModel.PageMetadata(
+                        page.getSize(),
+                        page.getNumber(),
+                        page.getTotalElements(),
+                        page.getTotalPages()
+                )
+        );
+
+        Link selfLink = WebMvcLinkBuilder.linkTo(
+                WebMvcLinkBuilder.methodOn(PostController.class).getPostsByAuthorId(authorId, pageable)
+        ).withSelfRel();
+        pagedModel.add(selfLink);
+
+        if (page.hasNext()) {
+            Link nextLink = WebMvcLinkBuilder.linkTo(
+                    WebMvcLinkBuilder.methodOn(PostController.class).getPostsByAuthorId(authorId, page.nextPageable())
+            ).withRel("next");
+            pagedModel.add(nextLink);
+        }
+
+        if (page.hasPrevious()) {
+            Link prevLink = WebMvcLinkBuilder.linkTo(
+                    WebMvcLinkBuilder.methodOn(PostController.class).getPostsByAuthorId(authorId, page.previousPageable())
+            ).withRel("prev");
+            pagedModel.add(prevLink);
+        }
+
+        return pagedModel;
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PostResponseDTO> getPostById(@PathVariable int id) {
+        return ResponseEntity.ok(postService.getById(id));
     }
 
     @PatchMapping("/{postId}")
-    public PostResponseDTO updateById(@PathVariable int postId, @Valid @RequestBody PostUpdateDTO dto) {
-        return postService.updateById(postId, dto);
+    public ResponseEntity<PostResponseDTO> updateById(
+            @PathVariable int postId,
+            @Valid @RequestBody PostUpdateDTO dto,
+            @AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(postService.updateById(postId, dto, currentUser));
     }
 
     @DeleteMapping("/{postId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable int postId) {
-        postService.deleteById(postId);
+    public ResponseEntity<Void> deleteById(
+            @PathVariable int postId,
+            @AuthenticationPrincipal User currentUser) {
+        postService.deleteById(postId, currentUser);
+        return ResponseEntity.noContent().build();
     }
-
-//    @GetMapping("posts/search") // http://localhost:8080/posts/search?author=Roman
-//    public Collection<Post> searchPosts(@RequestParam String author, @RequestParam @DateTimeFormat(pattern = "dd.MM.yyyy") LocalDate creationDate) {
-//        return postService.searchPosts(author, creationDate);
-//    }
-
 }

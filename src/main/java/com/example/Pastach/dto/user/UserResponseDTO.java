@@ -3,6 +3,7 @@ package com.example.Pastach.dto.user;
 import lombok.Builder;
 
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -14,7 +15,8 @@ public record UserResponseDTO(
         String lastName,
         String email,
         LocalDate birthday,
-        boolean isLocked,
-        Set<String> roles
+        boolean locked,
+        Set<String> roles,
+        Instant createdAt
 ) {
 }

@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Builder
@@ -12,5 +13,5 @@ public record PostResponseDTO(
         String authorId,
         String text,
         String photoUrl,
-        LocalDateTime creationDate) {
+        Instant createdAt) {
 }

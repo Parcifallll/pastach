@@ -19,38 +19,30 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserMapper {
 
-    // create: DTO -> Entity
     // other fields will be mapped automatically (do not require default value + exist in DTO with the same name)
-    @Mapping(target = "roles", expression = "java(mapRoles(userCreateDTO.roles()))")
-    User toEntity(UserCreateDTO userCreateDTO, String author);
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "locked", ignore = true)
+    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    // service: default
+    User toEntity(UserCreateDTO userCreateDTO);
 
-    // update: DTO -> Entity
-    @Mapping(target = "roles", expression = "java(mapRoles(userUpdateDTO.roles()))")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "email", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "locked", ignore = true)
+    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     void updateFromDto(UserUpdateDTO userUpdateDTO, @MappingTarget User user);
 
-    // response: entity -> dto
+
     @Mapping(target = "roles", expression = "java(mapRoleNames(user.getRoles()))")
     UserResponseDTO toResponseDto(User user);
 
-    // Set<String> -> Set<Role>
-    default Set<Role> mapRoles(Set<String> roleNames) {
-        Set<Role> roles = new HashSet<>();
-        for (String roleName : roleNames) {
-            RoleEnum roleEnum = RoleEnum.valueOf(roleName.toUpperCase()); // String -> RoleEnum
-            Role role = new Role();
-            role.setName(roleEnum);
-            roles.add(role);
-        }
-        return roles;
-    }
-
-    // Set<Role> -> Set<String>
     default Set<String> mapRoleNames(Set<Role> roles) {
         if (roles == null) return null;
         return roles.stream()
-                .map(role -> role.getName().toString()) // RoleEnum -> String
+                .map(role -> role.getName().toString())  // RoleEnum -> String
                 .collect(Collectors.toSet());
     }
 }

@@ -1,38 +1,62 @@
 package com.example.Pastach.service;
 
 import com.example.Pastach.dto.mapper.UserMapper;
-import com.example.Pastach.exception.UserAlreadyExistException;
-import com.example.Pastach.exception.UserNotFoundException;
-import com.example.Pastach.model.User;
-import com.example.Pastach.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import com.example.Pastach.dto.user.UserCreateDTO;
+import com.example.Pastach.dto.user.PasswordChangeDTO;
 import com.example.Pastach.dto.user.UserResponseDTO;
 import com.example.Pastach.dto.user.UserUpdateDTO;
+import com.example.Pastach.exception.UserAlreadyExistException;
+import com.example.Pastach.exception.UserNotFoundException;
+import com.example.Pastach.model.Role;
+import com.example.Pastach.model.RoleEnum;
+import com.example.Pastach.model.User;
+import com.example.Pastach.repository.RoleRepository;
+import com.example.Pastach.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserResponseDTO create(UserCreateDTO dto) {
-        if (userRepository.existsById(dto.id())) {
-            throw new UserAlreadyExistException("User with id " + dto.id() + " already exists");
+    public User createWithPassword(String id, String email, String firstName,
+                                   String lastName, LocalDate birthday, String rawPassword) {
+        if (userRepository.existsByEmail(email)) {
+            throw new UserAlreadyExistException("User with email " + email + " already exists");
         }
 
-        if (userRepository.existsByEmail(dto.email())) {
-            throw new UserAlreadyExistException("User with email " + dto.email() + " already exists");
-        }
+        User user = new User();
+        user.setId(id);
+        user.setEmail(email);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setBirthday(birthday);
+        user.setPassword(passwordEncoder.encode(rawPassword));
 
-        User user = userRepository.save(userMapper.toEntity(dto, dto.id()));
-        return userMapper.toResponseDto(user);
+        // Default role: USER
+        Role userRole = roleRepository.findByName(RoleEnum.USER)
+                .orElseThrow(() -> new RuntimeException("Error: Role USER not found in database"));
+        user.setRoles(new HashSet<>(Set.of(userRole)));
+
+        return userRepository.save(user);
     }
+
 
     @Transactional(readOnly = true)
     public UserResponseDTO getById(String userId) {
@@ -42,28 +66,82 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserResponseDTO> getAll() {
-        return userRepository.findAll().stream()
-                .map(userMapper::toResponseDto)
-                .toList();
+    public Page<UserResponseDTO> getAll(Pageable pageable) {
+        Page<User> page = userRepository.findAll(pageable);
+        return page.map(userMapper::toResponseDto);
     }
 
 
+    @PreAuthorize("authenticated()")
     @Transactional
-    public UserResponseDTO updateById(String userId, UserUpdateDTO dto) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+    public UserResponseDTO updateById(String userId, UserUpdateDTO dto, @AuthenticationPrincipal User currentUser) {
+        if (!userId.equals(currentUser.getId())) {
+            throw new AccessDeniedException("You can only update your own profile");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         userMapper.updateFromDto(dto, user);
-        user = userRepository.save(user); // updated existing user from dto
+        user = userRepository.save(user);
         return userMapper.toResponseDto(user);
     }
 
 
+
     @Transactional
+    @PreAuthorize("#userId == authentication.principal.id or hasRole('ADMIN')")
     public void deleteById(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
-
         userRepository.delete(user);
     }
+
+
+    @PreAuthorize("authenticated()")
+    @Transactional
+    public void changePassword(String userId, PasswordChangeDTO dto, @AuthenticationPrincipal User currentUser) {
+        if (!userId.equals(currentUser.getId())) {
+            throw new AccessDeniedException("You can only change your own password");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        if (!passwordEncoder.matches(dto.currentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(dto.newPassword()));
+        userRepository.save(user);
+    }
+
+    // admin only
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserResponseDTO updateRoles(String userId, Set<String> roleNames) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        Set<Role> roles = roleNames.stream()
+                .map(name -> RoleEnum.valueOf(name.toUpperCase()))
+                .map(roleEnum -> roleRepository.findByName(roleEnum)
+                        .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleEnum)))
+                .collect(Collectors.toSet());
+
+        user.setRoles(roles);
+        user = userRepository.save(user);
+        return userMapper.toResponseDto(user);
+    }
+
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserResponseDTO toggleLock(String userId, boolean locked) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        user.setLocked(locked);
+        user = userRepository.save(user);
+        return userMapper.toResponseDto(user);
+    }
+
 }

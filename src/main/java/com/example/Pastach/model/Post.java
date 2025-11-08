@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Getter
@@ -31,8 +32,8 @@ public class Post {
 
     @CreationTimestamp
     @Setter(AccessLevel.NONE)
-    @Column(name = "creation_date", columnDefinition = "TIMESTAMP(0)")
-    private LocalDateTime creationDate;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
 
     // for PostService and PostMapper
     public Post(String text, String photoUrl, String authorId) {

@@ -1,21 +1,23 @@
 package com.example.Pastach.service;
 
+import com.example.Pastach.dto.mapper.PostMapper;
 import com.example.Pastach.dto.post.PostCreateDTO;
 import com.example.Pastach.dto.post.PostResponseDTO;
 import com.example.Pastach.dto.post.PostUpdateDTO;
 import com.example.Pastach.exception.PostNotFoundException;
 import com.example.Pastach.exception.UserNotFoundException;
-import com.example.Pastach.dto.mapper.PostMapper;
 import com.example.Pastach.model.Post;
+import com.example.Pastach.model.User;
 import com.example.Pastach.repository.PostRepository;
 import com.example.Pastach.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor // generate constructor for final-fields
@@ -26,13 +28,11 @@ public class PostService {
     private final PostMapper postMapper;
 
 
+    @PreAuthorize("authenticated()")
     @Transactional
     public PostResponseDTO create(PostCreateDTO dto, String authorId) {
-        if (!userRepository.existsById(authorId)) {
-            throw new UserNotFoundException(authorId);
-        }
-
-        Post post = postMapper.toEntity(dto, authorId);
+        Post post = postMapper.toEntity(dto);
+        post.setAuthorId(authorId);
         post = postRepository.save(post); // create Post from dto
         return postMapper.toResponseDto(post);
     }
@@ -62,20 +62,31 @@ public class PostService {
     }
 
 
+    @PreAuthorize("authenticated()") // @PreAuthorize("authenticated()") + @AuthenticationPrincipal ... !
     @Transactional
-    public PostResponseDTO updateById(int postId, PostUpdateDTO dto) {
+    public PostResponseDTO updateById(int postId, PostUpdateDTO dto, @AuthenticationPrincipal User curUser) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
+
+        if (!post.getAuthorId().equals(curUser.getId())) {
+            throw new AccessDeniedException("You are not authorized to edit this post.");
+        }
 
         postMapper.updateFromDto(dto, post);
         post = postRepository.save(post);  // update existing post with new data from dto
         return postMapper.toResponseDto(post);
     }
 
+    @PreAuthorize("authenticated()")
     @Transactional
-    public void deleteById(int postId) {
+    public void deleteById(int postId, @AuthenticationPrincipal User currentUser) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
+
+        boolean isAuthor = post.getAuthorId().equals(currentUser.getId());
+        if (!isAuthor) {
+            throw new AccessDeniedException("You are not authorized to delete this post.");
+        }
         postRepository.delete(post);
     }
 
