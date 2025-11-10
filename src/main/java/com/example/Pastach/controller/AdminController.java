@@ -24,7 +24,7 @@ public class AdminController {
         return ResponseEntity.ok(userService.updateRoles(id, roles));
     }
 
-    @PatchMapping("/{id}/lock")
+    @PatchMapping("/{id}/lock") //?lock=true
     public ResponseEntity<UserResponseDTO> toggleUserLock(
             @PathVariable String id,
             @RequestParam boolean locked) {

@@ -2,16 +2,23 @@ package com.example.Pastach;
 
 import com.example.Pastach.model.Role;
 import com.example.Pastach.model.RoleEnum;
+import com.example.Pastach.model.User;
 import com.example.Pastach.repository.RoleRepository;
+import com.example.Pastach.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.LocalDate;
+import java.util.Set;
 
 @Configuration
 public class DataInitializer {
 
     @Bean
-    public CommandLineRunner initRoles(RoleRepository roleRepository) {
+    public CommandLineRunner initRoles(RoleRepository roleRepository, UserRepository userRepository,
+                                       PasswordEncoder passwordEncoder) {
         return args -> {
 
             if (roleRepository.findByName(RoleEnum.USER).isEmpty()) {
@@ -30,6 +37,22 @@ public class DataInitializer {
                 Role guestRole = new Role();
                 guestRole.setName(RoleEnum.GUEST);
                 roleRepository.save(guestRole);
+            }
+
+            if (userRepository.findById("admin").isEmpty()) {
+                User admin = new User();
+                admin.setId("admin");
+                admin.setEmail("admin@example.com");
+                admin.setFirstName("admin");
+                admin.setLastName("admin");
+                admin.setBirthday(LocalDate.of(1990, 1, 1));
+                admin.setPassword(passwordEncoder.encode("adminpass123"));  // hash
+                admin.setLocked(false);
+                admin = userRepository.save(admin);
+
+                Role adminRole = roleRepository.findByName(RoleEnum.ADMIN).orElseThrow();
+                admin.setRoles(Set.of(adminRole));
+                userRepository.save(admin);
             }
         };
     }

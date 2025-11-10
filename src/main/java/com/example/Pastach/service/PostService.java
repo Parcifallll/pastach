@@ -7,6 +7,7 @@ import com.example.Pastach.dto.post.PostUpdateDTO;
 import com.example.Pastach.exception.PostNotFoundException;
 import com.example.Pastach.exception.UserNotFoundException;
 import com.example.Pastach.model.Post;
+import com.example.Pastach.model.RoleEnum;
 import com.example.Pastach.model.User;
 import com.example.Pastach.repository.PostRepository;
 import com.example.Pastach.repository.UserRepository;
@@ -84,7 +85,8 @@ public class PostService {
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
         boolean isAuthor = post.getAuthorId().equals(currentUser.getId());
-        if (!isAuthor) {
+        boolean isAdmin = currentUser.getRoles().stream().anyMatch(r -> r.getName() == RoleEnum.ADMIN);
+        if (!isAuthor && !isAdmin) {
             throw new AccessDeniedException("You are not authorized to delete this post.");
         }
         postRepository.delete(post);
