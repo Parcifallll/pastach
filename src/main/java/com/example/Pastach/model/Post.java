@@ -19,7 +19,7 @@ public class Post {
     @Setter(AccessLevel.NONE)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private int id;
+    private Long id;
 
     @Column(name = "author_id", nullable = false)
     private String authorId;

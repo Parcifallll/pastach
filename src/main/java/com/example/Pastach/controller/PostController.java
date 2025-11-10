@@ -113,13 +113,13 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostResponseDTO> getPostById(@PathVariable int id) {
+    public ResponseEntity<PostResponseDTO> getPostById(@PathVariable Long id) {
         return ResponseEntity.ok(postService.getById(id));
     }
 
     @PatchMapping("/{postId}")
     public ResponseEntity<PostResponseDTO> updateById(
-            @PathVariable int postId,
+            @PathVariable Long postId,
             @Valid @RequestBody PostUpdateDTO dto,
             @AuthenticationPrincipal User currentUser) {
         return ResponseEntity.ok(postService.updateById(postId, dto, currentUser));
@@ -127,7 +127,7 @@ public class PostController {
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deleteById(
-            @PathVariable int postId,
+            @PathVariable Long postId,
             @AuthenticationPrincipal User currentUser) {
         postService.deleteById(postId, currentUser);
         return ResponseEntity.noContent().build();

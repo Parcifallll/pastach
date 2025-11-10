@@ -39,7 +39,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostResponseDTO getById(int postId) {
+    public PostResponseDTO getById(Long postId) {
         return postRepository.findById(postId)
                 .map(postMapper::toResponseDto) // map: Post -> PostResponseDto
                 .orElseThrow(() -> new PostNotFoundException(postId));
@@ -65,7 +65,7 @@ public class PostService {
 
     @PreAuthorize("isAuthenticated()") // @PreAuthorize("authenticated()") + @AuthenticationPrincipal ... !
     @Transactional
-    public PostResponseDTO updateById(int postId, PostUpdateDTO dto, @AuthenticationPrincipal User curUser) {
+    public PostResponseDTO updateById(Long postId, PostUpdateDTO dto, @AuthenticationPrincipal User curUser) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
@@ -80,7 +80,7 @@ public class PostService {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional
-    public void deleteById(int postId, @AuthenticationPrincipal User currentUser) {
+    public void deleteById(Long postId, @AuthenticationPrincipal User currentUser) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 

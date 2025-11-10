@@ -42,7 +42,7 @@ public class User implements UserDetails { // no constructors -> MapStruct creat
     @Column(name = "birthday", nullable = false)
     private LocalDate birthday;
 
-    @Column(name = "is_locked")
+    @Column(name = "locked")
     private boolean locked = false;
 
     @CreationTimestamp

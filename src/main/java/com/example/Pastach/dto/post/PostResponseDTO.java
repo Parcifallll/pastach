@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Builder
 public record PostResponseDTO(
-        int id,
+        Long id,
         String authorId,
         String text,
         String photoUrl,
