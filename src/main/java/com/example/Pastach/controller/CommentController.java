@@ -9,6 +9,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -29,10 +34,37 @@ public class CommentController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<CommentResponseDTO>> getAllByPostId(
+    public PagedModel<CommentResponseDTO> getAllByPostId(
             @PathVariable Long postId,
-            Pageable pageable) {
-        return ResponseEntity.ok(commentService.getAllByPostId(postId, pageable));
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<CommentResponseDTO> page = commentService.getAllByPostId(postId, pageable);
+
+        PagedModel<CommentResponseDTO> pagedModel = PagedModel.of(
+                page.getContent(),
+                new PagedModel.PageMetadata(page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages())
+        );
+
+        Link selfLink = WebMvcLinkBuilder.linkTo(
+                WebMvcLinkBuilder.methodOn(CommentController.class).getAllByPostId(postId, pageable)
+        ).withSelfRel();
+        pagedModel.add(selfLink);
+
+        if (page.hasNext()) {
+            Link nextLink = WebMvcLinkBuilder.linkTo(
+                    WebMvcLinkBuilder.methodOn(CommentController.class).getAllByPostId(postId, page.nextPageable())
+            ).withRel("next");
+            pagedModel.add(nextLink);
+        }
+
+        if (page.hasPrevious()) {
+            Link prevLink = WebMvcLinkBuilder.linkTo(
+                    WebMvcLinkBuilder.methodOn(CommentController.class).getAllByPostId(postId, page.previousPageable())
+            ).withRel("prev");
+            pagedModel.add(prevLink);
+        }
+
+        return pagedModel;
     }
 
     @PatchMapping("/{commentId}")

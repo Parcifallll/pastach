@@ -1,6 +1,7 @@
 package com.example.Pastach.dto.post;
 
 import com.example.Pastach.model.Comment;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

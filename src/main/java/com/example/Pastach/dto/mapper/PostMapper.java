@@ -14,6 +14,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 public interface PostMapper {
     Post toEntity(PostCreateDTO postCreateDTO);
 
+
     PostResponseDTO toResponseDto(Post post);
 
     @Mapping(target="comments", ignore=true)

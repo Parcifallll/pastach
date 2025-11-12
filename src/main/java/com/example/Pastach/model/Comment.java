@@ -1,5 +1,6 @@
 package com.example.Pastach.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -27,6 +28,8 @@ public class Comment {
     @Column(name = "photo_url")
     private String photoUrl;
 
+// for Post.getComments() (while getComments)
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY) // only when request comments from post
     @JoinColumn(name = "post_id")
     private Post post;

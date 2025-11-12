@@ -1,5 +1,6 @@
 package com.example.Pastach.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -37,7 +38,7 @@ public class Post {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-
+    @JsonIgnore
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();
 

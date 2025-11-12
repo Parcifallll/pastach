@@ -32,6 +32,7 @@ public class PostService {
     @PreAuthorize("isAuthenticated()")
     @Transactional
     public PostResponseDTO create(PostCreateDTO dto, String authorId) {
+        if (!dto.hasContent()) throw new IllegalArgumentException("Post can't be empty");
         Post post = postMapper.toEntity(dto);
         post.setAuthorId(authorId);
         post = postRepository.save(post); // create Post from dto
@@ -69,6 +70,7 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
+        if (!dto.hasContent()) throw new IllegalArgumentException("Post can't be empty");
         if (!post.getAuthorId().equals(curUser.getId())) {
             throw new AccessDeniedException("You are not authorized to edit this post.");
         }

@@ -5,7 +5,6 @@ import com.example.Pastach.dto.comment.CommentResponseDTO;
 import com.example.Pastach.dto.comment.CommentUpdateDTO;
 import com.example.Pastach.dto.mapper.CommentMapper;
 import com.example.Pastach.exception.CommentNotFoundException;
-import com.example.Pastach.exception.InvalidCommentException;
 import com.example.Pastach.exception.PostNotFoundException;
 import com.example.Pastach.model.Comment;
 import com.example.Pastach.model.Post;
@@ -36,7 +35,7 @@ public class CommentService {
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(postId));
         Comment comment = commentMapper.toEntity(dto);
         if (comment.getText().isEmpty() && comment.getPhotoUrl().isEmpty())
-            throw new InvalidCommentException("Comment can't be empty!");
+            throw new IllegalArgumentException("Comment can't be empty!");
         comment.setPost(post);
         comment.setAuthorId(user.getId());
         comment = commentRepository.save(comment);
@@ -56,6 +55,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException(commentId));
 
+        if(!dto.hasContent()) throw new IllegalArgumentException("Comment can't be empty");
         if (!comment.getAuthorId().equals(user.getId())) {
             throw new AccessDeniedException("You can only update your own comment");
         }
