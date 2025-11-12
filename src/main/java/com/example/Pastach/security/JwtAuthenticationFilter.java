@@ -1,5 +1,6 @@
 package com.example.Pastach.security;
 
+import com.example.Pastach.model.User;
 import com.example.Pastach.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

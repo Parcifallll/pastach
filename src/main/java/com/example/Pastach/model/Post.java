@@ -6,6 +6,8 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -34,6 +36,10 @@ public class Post {
     @Setter(AccessLevel.NONE)
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
+
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Comment> comments = new ArrayList<>();
 
     // for PostService and PostMapper
     public Post(String text, String photoUrl, String authorId) {

@@ -49,7 +49,7 @@ public class User implements UserDetails { // no constructors -> MapStruct creat
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @ManyToMany(fetch = FetchType.EAGER) // create temp table of roles while requesting user
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))

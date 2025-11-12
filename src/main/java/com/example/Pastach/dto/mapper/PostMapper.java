@@ -16,6 +16,7 @@ public interface PostMapper {
 
     PostResponseDTO toResponseDto(Post post);
 
+    @Mapping(target="comments", ignore=true)
     @Mapping(target="authorId", ignore = true)
     @Mapping(target="createdAt", ignore = true)
     void updateFromDto(PostUpdateDTO postUpdateDTO, @MappingTarget Post post);

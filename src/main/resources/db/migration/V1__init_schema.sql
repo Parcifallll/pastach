@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS public.roles
 (
     id   BIGSERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE CHECK (name IN ('USER', 'ADMIN', 'GUEST'))
+    name VARCHAR(50) NOT NULL UNIQUE CHECK (name IN ('USER', 'ADMIN'))
 );
 
 INSERT INTO public.roles (name)
@@ -16,7 +16,7 @@ WHERE NOT EXISTS (SELECT 1 FROM public.roles WHERE name = 'GUEST');
 
 CREATE TABLE IF NOT EXISTS public.users
 (
-    id         VARCHAR(255) PRIMARY KEY,
+    id         VARCHAR(255) PRIMARY KEY, --PK always created with index
     email      VARCHAR(255) NOT NULL UNIQUE,
     password   VARCHAR(255) NOT NULL,
     first_name VARCHAR(255) NOT NULL,
