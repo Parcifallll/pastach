@@ -10,9 +10,6 @@ WHERE NOT EXISTS (SELECT 1 FROM public.roles WHERE name = 'USER');
 INSERT INTO public.roles (name)
 SELECT 'ADMIN'
 WHERE NOT EXISTS (SELECT 1 FROM public.roles WHERE name = 'ADMIN');
-INSERT INTO public.roles (name)
-SELECT 'GUEST'
-WHERE NOT EXISTS (SELECT 1 FROM public.roles WHERE name = 'GUEST');
 
 CREATE TABLE IF NOT EXISTS public.users
 (
@@ -26,6 +23,8 @@ CREATE TABLE IF NOT EXISTS public.users
     created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
+CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
+
 CREATE TABLE IF NOT EXISTS public.posts
 (
     id         BIGSERIAL PRIMARY KEY,
@@ -34,6 +33,8 @@ CREATE TABLE IF NOT EXISTS public.posts
     photo_url  VARCHAR(255),
     created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
+
+CREATE INDEX IF NOT EXISTS idx_posts_author_id ON public.posts(author_id);
 
 CREATE TABLE IF NOT EXISTS public.user_roles
 (

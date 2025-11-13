@@ -22,10 +22,10 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.access.expiration}")
+    @Value("${jwt.access-expiration}")
     private long accessExpiration;
 
-    @Value("${jwt.refresh.expiration}")
+    @Value("${jwt.refresh-expiration}")
     private long refreshExpiration;
 
     public String generateAccessToken(User user) {

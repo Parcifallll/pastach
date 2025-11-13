@@ -20,27 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-/**
- * ═══════════════════════════════════════════════════════════════════════════════
- * SECURITY CONFIGURATION С ПУБЛИЧНЫМ И ПРИВАТНЫМ КОНТЕНТОМ
- * ═══════════════════════════════════════════════════════════════════════════════
- * <p>
- * КОНЦЕПЦИЯ:
- * <p>
- * 1. ПУБЛИЧНЫЕ ЭНДПОИНТЫ (доступны всем, даже без токена):
- * - /auth/** - регистрация, вход
- * - GET /posts/** - просмотр постов (анонимный доступ)
- * - GET /users/{id} - просмотр профилей
- * <p>
- * 2. ПРИВАТНЫЕ ЭНДПОИНТЫ (требуют JWT токен):
- * - POST /posts - создание поста
- * - PATCH /posts/{id} - редактирование
- * - DELETE /posts/{id} - удаление
- * - PATCH /users/{id} - обновление профиля
- * <p>
- * 3. АДМИНСКИЕ ЭНДПОИНТЫ (требуют роль ADMIN):
- * - /admin/** - управление пользователями
- */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -58,7 +37,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        // Публичные — В НАЧАЛЕ, чтобы не перекрывались
+                        .requestMatchers("/").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/users/{id}", "/users").permitAll()

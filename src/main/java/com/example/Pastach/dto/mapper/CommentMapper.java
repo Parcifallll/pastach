@@ -15,6 +15,7 @@ public interface CommentMapper {
     @Mapping(target = "id", ignore = true) //target has a field, but source does not
     @Mapping(target = "post", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "authorId", ignore = true)
     Comment toEntity(CommentCreateDTO commentCreateDTO);
 
     CommentResponseDTO toResponseDto(Comment comment);
@@ -22,5 +23,6 @@ public interface CommentMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "post", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "authorId", ignore = true)
     void updateFromDto(CommentUpdateDTO commentUpdateDTO, @MappingTarget Comment comment);
 }

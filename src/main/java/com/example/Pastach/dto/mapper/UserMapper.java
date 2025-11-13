@@ -24,6 +24,7 @@ public interface UserMapper {
     @Mapping(target = "locked", ignore = true)
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "authorities", ignore = true)
     // service: default
     User toEntity(UserCreateDTO userCreateDTO);
 
@@ -33,6 +34,7 @@ public interface UserMapper {
     @Mapping(target = "locked", ignore = true)
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "authorities", ignore = true)
     void updateFromDto(UserUpdateDTO userUpdateDTO, @MappingTarget User user);
 
 
