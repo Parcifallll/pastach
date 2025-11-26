@@ -1,6 +1,7 @@
 package com.example.Pastach.dto.post;
 
 import com.example.Pastach.model.Comment;
+import com.example.Pastach.model.Reaction;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,5 +18,7 @@ public record PostResponseDTO(
         String text,
         String photoUrl,
         Instant createdAt,
-        List<Comment> comments) {
+        long commentsCount,
+        long likesCount,
+        long dislikesCount) {
 }

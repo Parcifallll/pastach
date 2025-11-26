@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     // field=Post (not column in DB)
     // for N+1 solution (use 1* LEFT JOIN instead of SELECT * (1)+ SELECT (N), N+1 problem)
-    @EntityGraph(attributePaths = {"post"})
+    // @EntityGraph(attributePaths = {"post"})
     Page<Comment> findAllByPostId(Long authorId, Pageable pageable);
 
 }

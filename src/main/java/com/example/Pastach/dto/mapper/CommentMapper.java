@@ -18,6 +18,7 @@ public interface CommentMapper {
     @Mapping(target = "authorId", ignore = true)
     Comment toEntity(CommentCreateDTO commentCreateDTO);
 
+    @Mapping(target = "postId", source = "post.id")
     CommentResponseDTO toResponseDto(Comment comment);
 
     @Mapping(target = "id", ignore = true)

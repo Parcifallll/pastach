@@ -42,6 +42,16 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();
 
+    @Column(name = "comments_count", nullable = false, columnDefinition = "bigint default 0")
+    private long commentsCount = 0;
+
+    @Column(name = "likes_count", nullable = false, columnDefinition = "bigint default 0")
+    private long likesCount = 0;
+
+    @Column(name = "dislikes_count", nullable = false, columnDefinition = "bigint default 0")
+    private long dislikesCount = 0;
+
+
     // for PostService and PostMapper
     public Post(String text, String photoUrl, String authorId) {
         this.text = text;

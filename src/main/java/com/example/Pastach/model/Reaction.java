@@ -1,7 +1,6 @@
 package com.example.Pastach.model;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,34 +8,38 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
+// Reaction might be put on POST, COMMENT - polymorphic
 @Entity
-@Table(name = "reactions")
+@Table(name = "reactions", schema = "public")
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id")
 public class Reaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
-    private Post post;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "target_type", nullable = false)
+    private ReactionTargetType targetType;  // POST, COMMENT
+
+    @Column(name = "target_id", nullable = false)
+    private Long targetId;  // postId, commentId
 
     @Column(name = "author_id", nullable = false)
     private String authorId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    private ReactionType type;
+    private ReactionType type;  // LIKE, DISLIKE
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    public Reaction(Post post, String authorId, ReactionType type) {
-        this.post = post;
+    public Reaction(ReactionTargetType targetType, Long targetId, String authorId, ReactionType type) {
+        this.targetType = targetType;
+        this.targetId = targetId;
         this.authorId = authorId;
         this.type = type;
     }
