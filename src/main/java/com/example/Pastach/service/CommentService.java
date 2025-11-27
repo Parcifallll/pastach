@@ -39,6 +39,10 @@ public class CommentService {
         comment.setPost(post);
         comment.setAuthorId(user.getId());
         comment = commentRepository.save(comment);
+
+        post.setCommentsCount(post.getCommentsCount() + 1);
+        postRepository.save(post);
+
         return commentMapper.toResponseDto(comment);
     }
 
@@ -76,6 +80,13 @@ public class CommentService {
         if (!isAuthor && !isAdmin) {
             throw new AccessDeniedException("You are not authorized to delete this post.");
         }
+
+        Post post = comment.getPost();
+        if (post.getCommentsCount() > 0) {
+            post.setCommentsCount(post.getCommentsCount() - 1);
+            postRepository.save(post);
+        }
+
         commentRepository.deleteById(commentId);
     }
 

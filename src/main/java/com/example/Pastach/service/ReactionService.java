@@ -24,13 +24,19 @@ public class ReactionService {
     @PreAuthorize("isAuthenticated()")
     @Transactional
     // one reaction at one target - toggle
-    public void toggleReaction(ReactionTargetType targetType, Long targetId, ReactionType type, User user) {
+    public void toggleReaction(ReactionTargetType targetType,
+                               Long targetId,
+                               ReactionType type,
+                               User user) {
+
         String authorId = user.getId();
 
         if (targetType == ReactionTargetType.POST) {
-            postRepository.findById(targetId).orElseThrow(() -> new PostNotFoundException(targetId));
+            postRepository.findById(targetId)
+                    .orElseThrow(() -> new PostNotFoundException(targetId));
         } else {
-            commentRepository.findById(targetId).orElseThrow(() -> new CommentNotFoundException(targetId));
+            commentRepository.findById(targetId)
+                    .orElseThrow(() -> new CommentNotFoundException(targetId));
         }
 
         Optional<Reaction> existing = reactionRepository
@@ -38,6 +44,7 @@ public class ReactionService {
 
         if (existing.isPresent()) {
             Reaction r = existing.get();
+
             if (r.getType() == type) {
                 reactionRepository.delete(r);
             } else {
