@@ -3,8 +3,11 @@ package com.example.Pastach.controller;
 import com.example.Pastach.dto.post.PostCreateDTO;
 import com.example.Pastach.dto.post.PostResponseDTO;
 import com.example.Pastach.dto.post.PostUpdateDTO;
+import com.example.Pastach.dto.reaction.ReactionCreateDTO;
+import com.example.Pastach.model.ReactionTargetType;
 import com.example.Pastach.model.User;
 import com.example.Pastach.service.PostService;
+import com.example.Pastach.service.ReactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
+    private final ReactionService reactionService;
 
 
     @PostMapping
@@ -131,5 +135,14 @@ public class PostController {
             @AuthenticationPrincipal User currentUser) {
         postService.deleteById(postId, currentUser);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{postId}/reactions")
+    public ResponseEntity<Void> reactToPost(
+            @PathVariable Long postId,
+            @RequestBody ReactionCreateDTO dto,
+            @AuthenticationPrincipal User user) {
+        reactionService.toggleReaction(ReactionTargetType.POST, postId, dto.type(), user);
+        return ResponseEntity.ok().build();
     }
 }

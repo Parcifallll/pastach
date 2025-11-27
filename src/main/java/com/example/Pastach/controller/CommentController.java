@@ -3,8 +3,11 @@ package com.example.Pastach.controller;
 import com.example.Pastach.dto.comment.CommentCreateDTO;
 import com.example.Pastach.dto.comment.CommentResponseDTO;
 import com.example.Pastach.dto.comment.CommentUpdateDTO;
+import com.example.Pastach.dto.reaction.ReactionCreateDTO;
+import com.example.Pastach.model.ReactionTargetType;
 import com.example.Pastach.model.User;
 import com.example.Pastach.service.CommentService;
+import com.example.Pastach.service.ReactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class CommentController {
 
     private final CommentService commentService;
+    private final ReactionService reactionService;
 
     @PostMapping
     public ResponseEntity<CommentResponseDTO> create(
@@ -83,5 +87,14 @@ public class CommentController {
             @AuthenticationPrincipal User user) {
         commentService.deleteById(commentId, user);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{commentId}/reactions")
+    public ResponseEntity<Void> reactToComment(
+            @PathVariable Long commentId,
+            @RequestBody ReactionCreateDTO dto,
+            @AuthenticationPrincipal User user) {
+        reactionService.toggleReaction(ReactionTargetType.COMMENT, commentId, dto.type(), user);
+        return ResponseEntity.ok().build();
     }
 }
