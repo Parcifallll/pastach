@@ -33,8 +33,9 @@ public class CommentService {
     @Transactional
     public CommentResponseDTO create(Long postId, CommentCreateDTO dto, @AuthenticationPrincipal User user) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(postId));
+
         Comment comment = commentMapper.toEntity(dto);
-        if (comment.getText().isEmpty() && comment.getPhotoUrl().isEmpty())
+        if (!dto.hasContent())
             throw new IllegalArgumentException("Comment can't be empty!");
         comment.setPost(post);
         comment.setAuthorId(user.getId());
@@ -78,7 +79,7 @@ public class CommentService {
         boolean isAuthor = comment.getAuthorId().equals(user.getId());
         boolean isAdmin = user.getRoles().stream().anyMatch(r -> r.getName() == RoleEnum.ADMIN);
         if (!isAuthor && !isAdmin) {
-            throw new AccessDeniedException("You are not authorized to delete this post.");
+            throw new AccessDeniedException("You can only delete your own comment");
         }
 
         Post post = comment.getPost();
