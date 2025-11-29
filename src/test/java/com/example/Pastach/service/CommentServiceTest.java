@@ -19,7 +19,6 @@ import org.springframework.security.access.AccessDeniedException;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.example.Pastach.model.RoleEnum.ADMIN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
