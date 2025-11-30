@@ -18,4 +18,8 @@ public class Role {
     @Column(name = "name", nullable = false, unique = true)
     private RoleEnum name; // USER, ADMIN
 
+    public Role(RoleEnum name) {
+        this.name = name;
+    }
+
 }

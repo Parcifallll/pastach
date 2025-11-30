@@ -73,7 +73,6 @@ public class CommentController {
 
     @PatchMapping("/{commentId}")
     public ResponseEntity<CommentResponseDTO> update(
-            @PathVariable Long postId,
             @PathVariable Long commentId,
             @Valid @RequestBody CommentUpdateDTO dto,
             @AuthenticationPrincipal User user) {
@@ -82,7 +81,6 @@ public class CommentController {
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> delete(
-            @PathVariable Long postId,
             @PathVariable Long commentId,
             @AuthenticationPrincipal User user) {
         commentService.deleteById(commentId, user);
